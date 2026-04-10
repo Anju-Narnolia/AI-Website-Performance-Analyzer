@@ -24,6 +24,7 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api/user", require("./routes/userRoutes.js"));
+app.use("/api/analyze", require("./routes/urlRoutes.js"));
 
 const PORT = process.env.PORT || 5000;
 

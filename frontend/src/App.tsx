@@ -7,6 +7,7 @@ import Navbar from './pages/layout/navbar'
 import Footer from './pages/layout/footer'
 import Home from './pages/home'
 import DashboardPreview from './pages/dashboard'
+import Analyze from './pages/anaylise'
 
 function App() {
 
@@ -18,6 +19,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/dashboard" element={<DashboardPreview />} />  
+        <Route path="/analyze" element={<Analyze />} />
       </Routes >
       <Footer />
     </>

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+// import { useState } from 'react';
 import {
     Zap,
     Activity,
@@ -6,44 +6,28 @@ import {
     Users,
     Search,
     Cpu,
-    Globe,
     TrendingUp,
     Clock,
     ArrowRight,
     CheckCircle2,
     Sparkles,
-    Smartphone
+    Smartphone,
 } from 'lucide-react';
+import { Link } from 'react-router-dom';
+
 
 // Hero Section
 export default function Home() {
-    const [url, setUrl] = useState('');
-    const [isAnalyzing, setIsAnalyzing] = useState(false);
-
-    const handleAnalyze = (e: { preventDefault: () => void; }) => {
-        e.preventDefault();
-        if (url) {
-            setIsAnalyzing(true);
-            setTimeout(() => setIsAnalyzing(false), 2000);
-        }
-    };
-
     return (
         <>
-            <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
-                {/* Background Effects */}
+            <section className="relative pt-24 pb-20 overflow-hidden">
                 <div className="absolute inset-0 bg-slate-950">
-                    {/* Gradient Orbs */}
                     <div className="absolute top-0 left-1/4 w-96 h-96 bg-cyan-500/20 rounded-full blur-[128px] animate-pulse" />
                     <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-blue-600/20 rounded-full blur-[128px] animate-pulse delay-1000" />
                     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-200 h-200 bg-purple-500/10 rounded-full blur-[150px]" />
-
-                    {/* Grid Pattern */}
                     <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]" />
                 </div>
-
                 <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-                    {/* Badge */}
                     <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-800/50 border border-slate-700/50 backdrop-blur-sm mb-8 animate-fade-in-up">
                         <Sparkles className="w-4 h-4 text-cyan-400" />
                         <span className="text-sm text-slate-300">Powered by Advanced AI Technology</span>
@@ -63,43 +47,7 @@ export default function Home() {
                         Analyze, Monitor, and Improve your website speed and SEO instantly.
                         Get actionable insights powered by machine learning.
                     </p>
-
-                    {/* URL Input Form */}
-                    <form onSubmit={handleAnalyze} className="max-w-2xl mx-auto mb-12 animate-fade-in-up delay-300">
-                        <div className="relative flex flex-col sm:flex-row gap-3 p-2 bg-slate-800/50 backdrop-blur-md rounded-2xl border border-slate-700/50 shadow-2xl">
-                            <div className="flex-1 relative">
-                                <Globe className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                                <input
-                                    type="url"
-                                    placeholder="Enter website URL (e.g., https://example.com)"
-                                    value={url}
-                                    onChange={(e) => setUrl(e.target.value)}
-                                    className="w-full pl-12 pr-4 py-4 bg-slate-900/50 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500/50 focus:ring-2 focus:ring-cyan-500/20 transition-all"
-                                    required
-                                />
-                            </div>
-                            <button
-                                type="submit"
-                                disabled={isAnalyzing}
-                                className="px-8 py-4 bg-linear-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-semibold rounded-xl transition-all duration-300 shadow-lg shadow-cyan-500/25 flex items-center justify-center gap-2 disabled:opacity-70"
-                            >
-                                {isAnalyzing ? (
-                                    <>
-                                        <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                        Analyzing...
-                                    </>
-                                ) : (
-                                    <>
-                                        Analyze Now
-                                        <ArrowRight className="w-5 h-5" />
-                                    </>
-                                )}
-                            </button>
-                        </div>
-                    </form>
-
-                    {/* Trust Indicators */}
-                    <div className="flex flex-wrap items-center justify-center gap-8 text-slate-500 text-sm animate-fade-in-up delay-400">
+                    <div className="flex flex-wrap items-center justify-center gap-8 text-slate-500 text-md animate-fade-in-up delay-400">
                         <div className="flex items-center gap-2">
                             <CheckCircle2 className="w-4 h-4 text-cyan-400" />
                             <span>Free Analysis</span>
@@ -113,9 +61,17 @@ export default function Home() {
                             <span>Instant Results</span>
                         </div>
                     </div>
+                    <div className='flex flex-wrap items-center justify-center py-10'>
+                        <Link to="/analyze" className="px-8 py-4 bg-linear-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-semibold rounded-xl transition-all duration-300 shadow-lg shadow-cyan-500/25 flex items-center justify-center gap-2">
+
+                            Analyze Now
+                            <ArrowRight className="w-5 h-5" />
+                        </Link>
+                    </div>
                 </div>
 
-            </section>
+
+            </section >
             <div>
 
                 <HowItWorks />

@@ -1,0 +1,27 @@
+const OpenAI = require("openai");
+
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
+
+async function getAISuggestions(report) {
+  const prompt = `
+  Here is a Lighthouse report:
+  ${JSON.stringify(report)}
+
+  Give improvement suggestions for:
+  - Performance
+  - SEO
+  - Accessibility
+  Keep it short and actionable.
+  `;
+
+  const response = await openai.chat.completions.create({
+    model: "gpt-4o-mini",
+    messages: [{ role: "user", content: prompt }],
+  });
+
+  return response.choices[0].message.content;
+}
+
+module.exports = { getAISuggestions };
