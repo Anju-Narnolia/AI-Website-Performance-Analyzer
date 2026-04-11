@@ -3,10 +3,8 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const router = express.Router();
 const User = require("../model/user");
+const { JWT_SECRET } = require("../config.js");
 // const authMiddleware = require("../middleware/auth");
-
-const JWT_SECRET =
-  process.env.JWT_SECRET || "your_secret_key_change_in_production_for_security";
 
 // Register a new user
 router.post("/register", async (req, res) => {
@@ -57,11 +55,13 @@ router.post("/login", async (req, res) => {
     }
 
     // ✅ Token
+    console.log("🔑 Creating token with JWT_SECRET");
     const token = jwt.sign(
       { userId: user._id },
       JWT_SECRET,
       { expiresIn: "1h" }
     );
+    console.log("✅ Token created successfully");
 
     // ✅ (BEST PRACTICE) Send token in cookie
     res.cookie("token", token, {

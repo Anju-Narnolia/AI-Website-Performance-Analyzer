@@ -13,41 +13,17 @@ const openai = new OpenAI({
 
 async function getAISuggestions(category, categoryData) {
   try {
-    console.log("🤖 AI Suggestion request received");
-    console.log("Report keys:", Object.keys(report));
+    console.log("🤖 AI Suggestion request received for category:", category);
+    console.log("Category data keys:", Object.keys(categoryData));
 
     if (!process.env.OPENAI_API_KEY) {
       throw new Error("OpenAI API Key is not configured. Please add OPENAI_API_KEY to your .env file.");
     }
 
-    // Create a summary of the report for the prompt
-    const summary = {
-      performance: report.performance?.score || 0,
-      seo: report.seo?.score || 0,
-      accessibility: report.accessibility?.score || 0,
-      bestPractices: report.bestPractices?.score || 0,
-      performanceIssues: report.performance?.issues?.length || 0,
-      seoIssues: report.seo?.issues?.length || 0,
-      accessibilityIssues: report.accessibility?.issues?.length || 0,
-      bestPracticesIssues: report.bestPractices?.issues?.length || 0,
-    };
+    const prompt = `You are a web performance expert. Analyze this ${category} data and provide detailed, actionable improvement suggestions.
 
-    const prompt = `You are a web performance expert. Analyze this website performance data and provide detailed, actionable improvement suggestions.
-
-SCORES:
-- Performance: ${summary.performance}%
-- SEO: ${summary.seo}%
-- Accessibility: ${summary.accessibility}%
-- Best Practices: ${summary.bestPractices}%
-
-ISSUES COUNT:
-- Performance Issues: ${summary.performanceIssues}
-- SEO Issues: ${summary.seoIssues}
-- Accessibility Issues: ${summary.accessibilityIssues}
-- Best Practices Issues: ${summary.bestPracticesIssues}
-
-DETAILED ISSUES:
-${JSON.stringify(report, null, 2)}
+${category.charAt(0).toUpperCase() + category.slice(1)} DATA:
+${JSON.stringify(categoryData, null, 2)}
 
 Please provide improvement suggestions in this EXACT format:
 
