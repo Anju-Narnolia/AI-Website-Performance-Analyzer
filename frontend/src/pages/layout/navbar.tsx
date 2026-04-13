@@ -7,6 +7,7 @@ export default function Navbar() {
     const [isScrolled, setIsScrolled] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const { user } = useAuth();
+    const { logout } = useAuth();
 
     useEffect(() => {
         const handleScroll = () => {
@@ -17,11 +18,15 @@ export default function Navbar() {
     }, []);
 
     const navLinks = [
-        { name: 'Features', href: '#features' },
-        { name: 'How It Works', href: '#how-it-works' },
-        { name: 'Dashboard', href: '#dashboard' },
-        { name: 'Benefits', href: '#benefits' },
+        { name: 'Analytics', href: '/analyze' },
+        { name: 'Dashboard', href: '/dashboard' }
     ];
+
+    const handleLogout = () => {
+        localStorage.removeItem('token');
+        logout();
+        window.location.href = '/login';
+    };
 
     return (
         <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-slate-900/90 backdrop-blur-md border-b border-slate-800' : 'bg-transparent'
@@ -69,12 +74,15 @@ export default function Navbar() {
                     )}
                     {user && (
                         <div className="hidden md:flex items-center gap-4">
-                            
+
                             <Link to="/dashboard">
                                 <button className="px-4 py-2 bg-linear-to-r cursor-pointer from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white text-sm font-medium rounded-lg transition-all duration-300 shadow-lg shadow-cyan-500/25">
-                                    My Account  
+                                    My Profile
                                 </button>
                             </Link>
+                            <button onClick={handleLogout} className="px-4 py-2 bg-linear-to-r cursor-pointer from-red-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white text-sm font-medium rounded-lg transition-all duration-300 shadow-lg shadow-cyan-500/25">
+                                Logout
+                            </button>
                         </div>
 
                     )}

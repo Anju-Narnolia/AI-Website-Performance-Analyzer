@@ -10,13 +10,11 @@ import {
     Layout,
     Search,
     Shield,
-    ChevronDown,
-    ChevronUp,
     Sparkles,
-    RefreshCw
+    RefreshCw,
 } from 'lucide-react';
+import CircularProgress from './components/CircularProgress';
 
-// Main Component
 export default function Analyze() {
     const [url, setUrl] = useState('');
     const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -93,19 +91,20 @@ export default function Analyze() {
     }, [result]);
 
     const categoryConfig = {
-        performance: { icon: TrendingUp, color: 'text-green-400', title: 'Performance' },
-        accessibility: { icon: Layout, color: 'text-blue-400', title: 'Accessibility' },
-        bestPractices: { icon: Shield, color: 'text-purple-400', title: 'Best Practices' },
-        seo: { icon: Search, color: 'text-yellow-400', title: 'SEO' }
+        performance: { icon: TrendingUp, color: 'text-green-800', title: 'Performance' },
+        accessibility: { icon: Layout, color: 'text-blue-700', title: 'Accessibility' },
+        bestPractices: { icon: Shield, color: 'text-purple-700', title: 'Best Practices' },
+        seo: { icon: Search, color: 'text-yellow-700', title: 'SEO' }
     };
 
+    // const Icon = categoryConfig[key].icon;
     return (
         <div className="min-h-screen bg-slate-900">
             {/* Hero Section */}
             <section className="relative pt-20 pb-32 overflow-hidden">
                 {/* Background Effects */}
                 <div className="absolute inset-0 bg-slate-900">
-                    <div className="absolute inset-0 bg-gradient-to-b from-cyan-500/10 via-transparent to-transparent" />
+                    <div className="absolute inset-0 bg-linear-to-b from-cyan-500/10 via-transparent to-transparent" />
                     <div className="absolute top-0 left-1/4 w-96 h-96 bg-cyan-500/20 rounded-full blur-3xl" />
                     <div className="absolute top-0 right-1/4 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl" />
                 </div>
@@ -121,7 +120,7 @@ export default function Analyze() {
                         <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold text-white mb-6 leading-tight">
                             Analyze Your Website
                             <br />
-                            <span className="bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 bg-clip-text text-transparent">
+                            <span className="bg-linear-to-r from-cyan-400 via-blue-500 to-purple-600 bg-clip-text text-transparent">
                                 Performance with AI
                             </span>
                         </h1>
@@ -148,7 +147,7 @@ export default function Analyze() {
                             <button
                                 type="submit"
                                 disabled={isAnalyzing}
-                                className="px-8 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 disabled:from-slate-700 disabled:to-slate-600 text-white font-semibold rounded-xl transition-all duration-300 shadow-lg shadow-cyan-500/25 flex items-center justify-center gap-2 disabled:opacity-70 hover:scale-105 active:scale-95"
+                                className="px-8 py-4 bg-linear-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 disabled:from-slate-700 disabled:to-slate-600 text-white font-semibold rounded-xl transition-all duration-300 shadow-lg shadow-cyan-500/25 flex items-center justify-center gap-2 disabled:opacity-70 hover:scale-105 active:scale-95"
                             >
                                 {isAnalyzing ? (
                                     <>
@@ -168,7 +167,7 @@ export default function Analyze() {
                     {/* Error Message */}
                     {error && (
                         <div className="max-w-2xl mx-auto mb-8 p-4 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center gap-3 animate-fade-in">
-                            <XCircle className="w-5 h-5 text-red-400 flex-shrink-0" />
+                            <XCircle className="w-5 h-5 text-red-400 shrink-0" />
                             <p className="text-red-400 text-sm">{error}</p>
                         </div>
                     )}
@@ -178,129 +177,120 @@ export default function Analyze() {
                         <div className="space-y-8 animate-fade-in-up">
                             {/* Overall Score Card */}
                             <div className="bg-slate-800/50 rounded-2xl border border-slate-700/50 p-8 text-center">
-                                <h2 className="text-2xl font-bold text-white mb-6">Overall Score</h2>
+                                <h2 className="text-4xl font-bold text-white mb-6">Overall Score</h2>
                                 <div className="flex justify-center mb-6">
                                     <CircularProgress score={overallScore} size={120} strokeWidth={10} />
                                 </div>
-                                <p className={`text-3xl font-bold ${getScoreColor(overallScore)} mb-2`}>
+                                <p className={`text-4xl font-bold ${getScoreColor(overallScore)} mb-2`}>
                                     {overallScore >= 90 ? 'Excellent!' : overallScore >= 70 ? 'Good' : 'Needs Work'}
                                 </p>
-                                <p className="text-slate-400">Your website scores {overallScore}/100 across all metrics</p>
+                                <p className="text-slate-400 text-xl">Your website scores {overallScore}/100 across all metrics</p>
                             </div>
-
-                            {/* Category Cards */}
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                {(Object.keys(categoryConfig) as CategoryKey[]).map((key) => (
-                                    <MetricCard
-                                        key={key}
-                                        title={categoryConfig[key].title}
-                                        score={result[key].score}
-                                        icon={categoryConfig[key].icon}
-                                        color={categoryConfig[key].color}
-                                        onClick={() => setActiveTab(key)}
-                                        isActive={activeTab === key}
-                                    />
-                                ))}
-                            </div>
+                                {(Object.keys(categoryConfig) as CategoryKey[]).map((key) => {
+                                    const Icon = categoryConfig[key].icon;
+                                    return (
+                                        <button
+                                            onClick={() => setActiveTab(key)}
+                                            className={`p-4 rounded-xl border transition-all duration-300 text-left group ${activeTab == key
+                                                ? 'bg-slate-700/50 border-cyan-500/50 shadow-lg shadow-cyan-500/10'
+                                                : 'bg-slate-900/50 border-slate-700/50 hover:border-slate-600 hover:bg-slate-800/50'
+                                                }`}
+                                        >
+                                            <div className="flex items-center justify-between mb-2">
 
-                            {/* Detailed Sections */}
-                            <div className="space-y-6">
-                                {/* Performance */}
-                                <DetailSection
-                                    title="Performance"
-                                    score={result.performance.score}
-                                    icon={TrendingUp}
-                                    color="text-green-400"
-                                    issues={[]}
-                                    suggestions={suggestions.performance}
-                                    loadingSuggestions={loadingSuggestions === 'performance'}
-                                    onGetSuggestions={() => handleGetSuggestions('performance')}
-                                    onClearSuggestions={() => clearSuggestion('performance')}
-                                >
-                                    <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-                                        {[
-                                            { label: 'FCP', value: result.performance.fcp, desc: 'First Contentful Paint' },
-                                            { label: 'LCP', value: result.performance.lcp, desc: 'Largest Contentful Paint' },
-                                            { label: 'TBT', value: result.performance.tbt, desc: 'Total Blocking Time' },
-                                            { label: 'CLS', value: result.performance.cls, desc: 'Cumulative Layout Shift' },
-                                            { label: 'Speed Index', value: result.performance.speedIndex, desc: 'Speed Index' }
-                                        ].map((metric) => (
-                                            <div key={metric.label} className="p-3 bg-slate-900/50 rounded-lg border border-slate-800/50 text-center group hover:border-slate-700/50 transition-colors">
-                                                <p className="text-slate-500 text-xs mb-1">{metric.label}</p>
-                                                <p className="text-white font-semibold text-sm">{metric.value}</p>
-                                                <p className="text-slate-600 text-xs mt-1 opacity-0 group-hover:opacity-100 transition-opacity">{metric.desc}</p>
+                                                <Icon
+                                                    className={`w-10 h-10 ${categoryConfig[key].color} border-slate-700 rounded-full border-2 p-2`}
+                                                />
+                                                {/* <categoryConfig[key].icon className={`w-10 h-10 ${categoryConfig[key].color} border-slate-700 rounded-full border-2 p-2`} /> */}
+                                                <CircularProgress score={result[key].score} size={70} strokeWidth={5} />
                                             </div>
-                                        ))}
-                                    </div>
-                                </DetailSection>
+                                            <p className="text-slate-400 text-sm font-medium">{categoryConfig[key].title}</p>
+                                            <p className={`text-lg font-bold ${getScoreColor(result[key].score)}`}>{result[key].score.toFixed(0)}%</p>
+                                        </button>
+                                    )
+                                })}
+                            </div>
+                            <div className="space-y-6">
+                                {activeTab === 'performance' && (
+                                    <DetailSection
+                                        title="Performance"
+                                        score={result.performance.score}
+                                        icon={TrendingUp}
+                                        color="text-green-400"
+                                        issues={[]}
+                                        suggestions={suggestions.performance}
+                                        loadingSuggestions={loadingSuggestions === 'performance'}
+                                        onGetSuggestions={() => handleGetSuggestions('performance')}
+                                        onClearSuggestions={() => clearSuggestion('performance')}
+                                    >
+                                        <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+                                            {[
+                                                { label: 'FCP', value: result.performance.fcp, desc: 'First Contentful Paint' },
+                                                { label: 'LCP', value: result.performance.lcp, desc: 'Largest Contentful Paint' },
+                                                { label: 'TBT', value: result.performance.tbt, desc: 'Total Blocking Time' },
+                                                { label: 'CLS', value: result.performance.cls, desc: 'Cumulative Layout Shift' },
+                                                { label: 'Speed Index', value: result.performance.speedIndex, desc: 'Speed Index' }
+                                            ].map((metric) => (
+                                                <div key={metric.label} className="p-3 bg-slate-900/50 rounded-lg border border-slate-800/50 text-center group hover:border-slate-700/50 transition-colors">
+                                                    <p className="text-slate-500 text-xs mb-1">{metric.label}</p>
+                                                    <p className="text-white font-semibold text-sm">{metric.value}</p>
+                                                    <p className="text-slate-600 text-xs mt-1 opacity-0 group-hover:opacity-100 transition-opacity">{metric.desc}</p>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </DetailSection>
+                                )}
 
-                                {/* Accessibility */}
-                                <DetailSection
-                                    title="Accessibility"
-                                    score={result.accessibility.score}
-                                    icon={Layout}
-                                    color="text-blue-400"
-                                    issues={result.accessibility.issues}
-                                    suggestions={suggestions.accessibility}
-                                    loadingSuggestions={loadingSuggestions === 'accessibility'}
-                                    onGetSuggestions={() => handleGetSuggestions('accessibility')}
-                                    onClearSuggestions={() => clearSuggestion('accessibility')}
-                                />
-
-                                {/* Best Practices */}
-                                <DetailSection
-                                    title="Best Practices"
-                                    score={result.bestPractices.score}
-                                    icon={Shield}
-                                    color="text-purple-400"
-                                    issues={result.bestPractices.issues}
-                                    suggestions={suggestions.bestPractices}
-                                    loadingSuggestions={loadingSuggestions === 'bestPractices'}
-                                    onGetSuggestions={() => handleGetSuggestions('bestPractices')}
-                                    onClearSuggestions={() => clearSuggestion('bestPractices')}
-                                />
-
-                                {/* SEO */}
-                                <DetailSection
-                                    title="SEO"
-                                    score={result.seo.score}
-                                    icon={Search}
-                                    color="text-yellow-400"
-                                    issues={result.seo.issues}
-                                    suggestions={suggestions.seo}
-                                    loadingSuggestions={loadingSuggestions === 'seo'}
-                                    onGetSuggestions={() => handleGetSuggestions('seo')}
-                                    onClearSuggestions={() => clearSuggestion('seo')}
-                                />
+                                {activeTab === 'accessibility' && (
+                                    <DetailSection
+                                        title="Accessibility"
+                                        score={result.accessibility.score}
+                                        icon={Layout}
+                                        color="text-blue-400"
+                                        issues={result.accessibility.issues}
+                                        suggestions={suggestions.accessibility}
+                                        loadingSuggestions={loadingSuggestions === 'accessibility'}
+                                        onGetSuggestions={() => handleGetSuggestions('accessibility')}
+                                        onClearSuggestions={() => clearSuggestion('accessibility')}
+                                    />
+                                )}
+                                {activeTab === 'bestPractices' && (
+                                    <DetailSection
+                                        title="Best Practices"
+                                        score={result.bestPractices.score}
+                                        icon={Shield}
+                                        color="text-purple-400"
+                                        issues={result.bestPractices.issues}
+                                        suggestions={suggestions.bestPractices}
+                                        loadingSuggestions={loadingSuggestions === 'bestPractices'}
+                                        onGetSuggestions={() => handleGetSuggestions('bestPractices')}
+                                        onClearSuggestions={() => clearSuggestion('bestPractices')}
+                                    />
+                                )}
+                                {activeTab === 'seo' && (
+                                    <DetailSection
+                                        title="SEO"
+                                        score={result.seo.score}
+                                        icon={Search}
+                                        color="text-yellow-400"
+                                        issues={result.seo.issues}
+                                        suggestions={suggestions.seo}
+                                        loadingSuggestions={loadingSuggestions === 'seo'}
+                                        onGetSuggestions={() => handleGetSuggestions('seo')}
+                                        onClearSuggestions={() => clearSuggestion('seo')}
+                                    />
+                                )}
                             </div>
                         </div>
                     )}
                 </div>
             </section>
-
-            {/* Add these styles to your global CSS or tailwind config */}
-            <style>{`
-                @keyframes fade-in {
-                    from { opacity: 0; transform: translateY(10px); }
-                    to { opacity: 1; transform: translateY(0); }
-                }
-                @keyframes fade-in-up {
-                    from { opacity: 0; transform: translateY(20px); }
-                    to { opacity: 1; transform: translateY(0); }
-                }
-                .animate-fade-in {
-                    animation: fade-in 0.3s ease-out;
-                }
-                .animate-fade-in-up {
-                    animation: fade-in-up 0.5s ease-out;
-                }
-            `}</style>
         </div>
     );
 }
 
 
-// Types
 interface MetricData {
     score: number;
     issues: string[];
@@ -325,9 +315,9 @@ interface AnalysisResult {
 type CategoryKey = 'performance' | 'seo' | 'accessibility' | 'bestPractices';
 
 const getScoreColor = (score: number): string => {
-    if (score >= 90) return 'text-green-400';
-    if (score >= 70) return 'text-yellow-400';
-    return 'text-red-400';
+    if (score >= 90) return 'text-green-500';
+    if (score >= 70) return 'text-yellow-700';
+    return 'text-red-500';
 };
 
 const getScoreBg = (score: number): string => {
@@ -336,75 +326,8 @@ const getScoreBg = (score: number): string => {
     return 'bg-red-500/20 border-red-500/30';
 };
 
-const CircularProgress = ({ score, size = 80, strokeWidth = 8 }: { score: number; size?: number; strokeWidth?: number }) => {
-    const radius = (size - strokeWidth) / 2;
-    const circumference = radius * 2 * Math.PI;
-    const offset = circumference - (score / 100) * circumference;
-    const color = score >= 90 ? '#4ade80' : score >= 70 ? '#facc15' : '#f87171';
 
-    return (
-        <div className="relative" style={{ width: size, height: size }}>
-            <svg className="transform -rotate-90" width={size} height={size}>
-                <circle
-                    cx={size / 2}
-                    cy={size / 2}
-                    r={radius}
-                    stroke="currentColor"
-                    strokeWidth={strokeWidth}
-                    fill="transparent"
-                    className="text-slate-700"
-                />
-                <circle
-                    cx={size / 2}
-                    cy={size / 2}
-                    r={radius}
-                    stroke={color}
-                    strokeWidth={strokeWidth}
-                    fill="transparent"
-                    strokeDasharray={circumference}
-                    strokeDashoffset={offset}
-                    strokeLinecap="round"
-                    className="transition-all duration-1000 ease-out"
-                />
-            </svg>
-            <div className="absolute inset-0 flex items-center justify-center">
-                <span className={`text-2xl font-bold ${getScoreColor(score)}`}>{Math.round(score)}</span>
-            </div>
-        </div>
-    );
-};
 
-// Metric Card Component
-const MetricCard = ({
-    title,
-    score,
-    icon: Icon,
-    color,
-    onClick,
-    isActive
-}: {
-    title: string;
-    score: number;
-    icon: React.ElementType;
-    color: string;
-    onClick?: () => void;
-    isActive?: boolean;
-}) => (
-    <button
-        onClick={onClick}
-        className={`p-4 rounded-xl border transition-all duration-300 text-left group ${isActive
-            ? 'bg-slate-700/50 border-cyan-500/50 shadow-lg shadow-cyan-500/10'
-            : 'bg-slate-900/50 border-slate-700/50 hover:border-slate-600 hover:bg-slate-800/50'
-            }`}
-    >
-        <div className="flex items-center justify-between mb-2">
-            <Icon className={`w-5 h-5 ${color}`} />
-            <CircularProgress score={score} size={50} strokeWidth={5} />
-        </div>
-        <p className="text-slate-400 text-sm font-medium">{title}</p>
-        <p className={`text-lg font-bold ${getScoreColor(score)}`}>{score.toFixed(0)}%</p>
-    </button>
-);
 
 // Detail Section Component
 const DetailSection = ({
@@ -429,13 +352,11 @@ const DetailSection = ({
     onClearSuggestions: () => void;
     children?: React.ReactNode;
 }) => {
-    const [isExpanded, setIsExpanded] = useState(true);
 
     return (
         <div className="bg-slate-800/50 rounded-2xl border border-slate-700/50 overflow-hidden transition-all duration-300 hover:border-slate-600/50">
             {/* Header */}
             <button
-                onClick={() => setIsExpanded(!isExpanded)}
                 className="w-full p-6 flex items-center justify-between bg-linear-to-r from-slate-800/50 to-transparent hover:from-slate-700/30 transition-colors"
             >
                 <div className="flex items-center gap-4">
@@ -444,92 +365,80 @@ const DetailSection = ({
                     </div>
                     <div className="text-left">
                         <h3 className="text-xl font-bold text-white">{title}</h3>
-                        <p className="text-slate-400 text-sm">
-                            {score >= 90 ? 'Excellent' : score >= 70 ? 'Good' : 'Needs Improvement'} issues found
-                        </p>
                     </div>
                 </div>
                 <div className="flex items-center gap-4">
                     <CircularProgress score={score} size={60} strokeWidth={6} />
-                    {isExpanded ? <ChevronUp className="w-5 h-5 text-slate-400" /> : <ChevronDown className="w-5 h-5 text-slate-400" />}
                 </div>
             </button>
-
-            {/* Content */}
-            {isExpanded && (
-                <div className="p-6 pt-0 border-t border-slate-700/50 animate-fade-in">
-                    {children}
-
-                    {/* Issues List */}
-                    <div className="mt-6">
-                        <h4 className="text-sm font-semibold text-slate-300 mb-3 flex items-center gap-2">
-                            <AlertCircle className="w-4 h-4 text-slate-400" />
-                            Issues Found ({issues.length})
-                        </h4>
-                        {issues.length > 0 ? (
-                            <ul className="space-y-2">
-                                {issues.map((issue, index) => (
-                                    <li
-                                        key={index}
-                                        className="flex items-start gap-3 p-3 bg-slate-900/50 rounded-lg border border-slate-800/50 hover:border-slate-700/50 transition-colors"
-                                    >
-                                        <XCircle className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
-                                        <span className="text-slate-300 text-sm leading-relaxed">{issue}</span>
-                                    </li>
-                                ))}
-                            </ul>
-                        ) : (
-                            <div className="flex items-center gap-2 p-4 bg-green-500/10 rounded-lg border border-green-500/20">
-                                <CheckCircle2 className="w-5 h-5 text-green-400" />
-                                <span className="text-green-400 text-sm font-medium">No issues found! Great job!</span>
-                            </div>
-                        )}
-                    </div>
-
-                    {/* AI Suggestions */}
-                    <div className="mt-6">
-                        {!suggestions ? (
-                            <button
-                                onClick={onGetSuggestions}
-                                disabled={loadingSuggestions}
-                                className="w-full px-4 py-3 bg-linear-to-r from-purple-500 to-pink-600 hover:from-purple-400 hover:to-pink-500 disabled:from-slate-700 disabled:to-slate-600 text-white font-semibold rounded-xl transition-all duration-300 disabled:opacity-70 flex items-center justify-center gap-2 shadow-lg shadow-purple-500/20 hover:shadow-purple-500/30"
-                            >
-                                {loadingSuggestions ? (
-                                    <>
-                                        <RefreshCw className="w-4 h-4 animate-spin" />
-                                        Generating AI Suggestions...
-                                    </>
-                                ) : (
-                                    <>
-                                        <Sparkles className="w-4 h-4" />
-                                        Get AI-Powered Suggestions
-                                    </>
-                                )}
-                            </button>
-                        ) : (
-                            <div className="bg-linear-to-br from-purple-900/20 to-pink-900/20 rounded-xl border border-purple-500/20 overflow-hidden">
-                                <div className="px-4 py-3 bg-purple-500/10 border-b border-purple-500/20 flex items-center justify-between">
-                                    <div className="flex items-center gap-2">
-                                        <Zap className="w-4 h-4 text-purple-400" />
-                                        <span className="text-purple-300 text-sm font-semibold">AI Suggestions</span>
-                                    </div>
-                                    <button
-                                        onClick={onClearSuggestions}
-                                        className="text-slate-400 hover:text-white text-xs transition-colors"
-                                    >
-                                        Clear
-                                    </button>
-                                </div>
-                                <div className="p-4">
-                                    <p className="text-slate-200 text-sm leading-relaxed whitespace-pre-wrap">
-                                        {suggestions}
-                                    </p>
-                                </div>
-                            </div>
-                        )}
-                    </div>
+            <div className="p-6 pt-0 border-t border-slate-700/50 animate-fade-in">
+                {children}
+                <div className="mt-6">
+                    <h4 className="text-sm font-semibold text-slate-300 mb-3 flex items-center gap-2">
+                        <AlertCircle className="w-4 h-4 text-slate-400" />
+                        Issues Found ({issues.length})
+                    </h4>
+                    {issues.length > 0 ? (
+                        <ul className="space-y-2">
+                            {issues.map((issue, index) => (
+                                <li
+                                    key={index}
+                                    className="flex items-start gap-3 p-3 bg-slate-900/50 rounded-lg border border-slate-800/50 hover:border-slate-700/50 transition-colors"
+                                >
+                                    <XCircle className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
+                                    <span className="text-slate-300 text-sm leading-relaxed">{issue}</span>
+                                </li>
+                            ))}
+                        </ul>
+                    ) : (
+                        <div className="flex items-center gap-2 p-4 bg-green-500/10 rounded-lg border border-green-500/20">
+                            <CheckCircle2 className="w-5 h-5 text-green-400" />
+                            <span className="text-green-400 text-sm font-medium">No issues found! Great job!</span>
+                        </div>
+                    )}
                 </div>
-            )}
+                <div className="mt-6">
+                    {!suggestions ? (
+                        <button
+                            onClick={onGetSuggestions}
+                            disabled={loadingSuggestions}
+                            className= " cursor-pointer w-full px-4 py-3 bg-linear-to-r from-purple-500 to-pink-600 hover:from-purple-400 hover:to-pink-500 disabled:from-slate-700 disabled:to-slate-600 text-white font-semibold rounded-xl transition-all duration-300 disabled:opacity-70 flex items-center justify-center gap-2 shadow-lg shadow-purple-500/20 hover:shadow-purple-500/30"
+                        >
+                            {loadingSuggestions ? (
+                                <>
+                                    <RefreshCw className="w-4 h-4 animate-spin" />
+                                    Generating AI Suggestions...
+                                </>
+                            ) : (
+                                <>
+                                    <Sparkles className="w-4 h-4" />
+                                    Get AI-Powered Suggestions
+                                </>
+                            )}
+                        </button>
+                    ) : (
+                        <div className="bg-linear-to-br from-purple-900/20 to-pink-900/20 rounded-xl border border-purple-500/20 overflow-hidden">
+                            <div className="px-4 py-3 bg-purple-500/10 border-b border-purple-500/20 flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                    <Zap className="w-4 h-4 text-purple-400" />
+                                    <span className="text-purple-300 text-sm font-semibold">AI Suggestions</span>
+                                </div>
+                                <button
+                                    onClick={onClearSuggestions}
+                                    className="text-slate-400 hover:text-white text-xs transition-colors"
+                                >
+                                    Clear
+                                </button>
+                            </div>
+                            <div className="p-4">
+                                <p className="text-slate-200 text-sm leading-relaxed whitespace-pre-wrap">
+                                    {suggestions}
+                                </p>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            </div>
         </div>
     );
 };

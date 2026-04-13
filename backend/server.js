@@ -39,6 +39,7 @@ app.get("/api/test-auth", authMiddleware, (req, res) => {
 
 app.use("/api/user", require("./routes/userRoutes.js"));
 app.use("/api/analyze", authMiddleware, require("./routes/urlRoutes.js"));
+app.use("/api/dashboard", authMiddleware, require("./routes/data.js"));
 
 const PORT = process.env.PORT || 5000;
 

@@ -19,7 +19,6 @@ export default function Login() {
             });
 
             const data = await res.json();
-            console.log(data);
             if (!res.ok) {
                 throw new Error(data.message || 'Login failed');
             } else {
@@ -27,7 +26,7 @@ export default function Login() {
             }
             localStorage.setItem('token', data.token);
             login({ token: data.token, user: data.user });
-            navigate("/dashboard");
+            navigate("/");
 
         } catch (error) {
             console.error('Error:', error);
