@@ -60,7 +60,6 @@ export default function Home() {
                     </div>
                     <div className='flex flex-wrap items-center justify-center py-10'>
                         <Link to="/analyze" className="px-8 py-4 bg-linear-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-semibold rounded-xl transition-all duration-300 shadow-lg shadow-cyan-500/25 flex items-center justify-center gap-2">
-
                             Analyze Now
                             <ArrowRight className="w-5 h-5" />
                         </Link>

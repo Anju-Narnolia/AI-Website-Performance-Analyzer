@@ -6,8 +6,9 @@ import Register from './pages/register'
 import Navbar from './pages/layout/navbar'
 import Footer from './pages/layout/footer'
 import Home from './pages/home'
-import DashboardPreview from './pages/dashboard'
+import History from './pages/history'
 import Analyze from './pages/anaylise'
+import Profile from './pages/profile'
 
 function App() {
 
@@ -15,11 +16,12 @@ function App() {
     <>
       <Navbar />
       <Routes>
-        <Route path="/" element={<Home/>} />
+        <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/dashboard" element={<DashboardPreview />} />  
+        <Route path="/history" element={<History />} />
         <Route path="/analyze" element={<Analyze />} />
+        <Route path="/profile" element={<Profile />} />
       </Routes >
       <Footer />
     </>

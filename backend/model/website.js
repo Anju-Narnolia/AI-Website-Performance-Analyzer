@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const WebsiteSchema = new mongoose.Schema({
   _id: {
@@ -22,4 +22,4 @@ const WebsiteSchema = new mongoose.Schema({
     default: Date.now,
   },
 });
-module.exports = mongoose.model("Website", WebsiteSchema);
+export default mongoose.model("Website", WebsiteSchema);

@@ -1,10 +1,7 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import {
     Globe,
     ArrowRight,
-    Zap,
-    CheckCircle2,
-    AlertCircle,
     XCircle,
     TrendingUp,
     Layout,
@@ -14,37 +11,61 @@ import {
     RefreshCw,
 } from 'lucide-react';
 import CircularProgress from './components/CircularProgress';
+import DetailSection from './components/DetailSection';
+interface MetricsData {
+    fcp: string;
+    lcp: string;
+    tbt: string;
+    cls: string;
+    speedIndex: string;
+}
+interface scores {
+    performance: number;
+    seo: number;
+    accessibility: number;
+    bestPractices: number;
+}
+interface SuggestionData {
+    category: string;
+    issue: string;
+    severity: 'high' | 'medium' | 'low' | string;
+    fix: string;
+    code?: string;
+    explanation?: string;
+}
+interface AnalysisResult {
+    scores: scores;
+    metrics: MetricsData;
+    aiSuggestions?: SuggestionData[];
+}
 
+type CategoryKey = 'performance' | 'seo' | 'accessibility' | 'bestPractices';
 export default function Analyze() {
     const [url, setUrl] = useState('');
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [result, setResult] = useState<AnalysisResult | null>(null);
     const [activeTab, setActiveTab] = useState<CategoryKey>('performance');
-    const [loadingSuggestions, setLoadingSuggestions] = useState<CategoryKey | null>(null);
     const [error, setError] = useState<string | null>(null);
-    const API_URL = import.meta.env.VITE_API_URL;
-    const [suggestions, setSuggestions] = useState<Record<CategoryKey, string | null>>({
-        performance: null,
-        seo: null,
-        accessibility: null,
-        bestPractices: null
-    });
+    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+    const token = localStorage.getItem('token');
 
-    const handleAnalyze = useCallback(async (e: React.FormEvent) => {
+    const getScoreColor = (score: number): string => {
+        if (score >= 90) return 'text-green-500';
+        if (score >= 70) return 'text-yellow-400';
+        return 'text-red-500';
+    };
+    const handleAnalyze = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!url) return;
-
         setIsAnalyzing(true);
         setResult(null);
         setError(null);
-        setSuggestions({ performance: null, seo: null, accessibility: null, bestPractices: null });
-
         try {
-            const token = localStorage.getItem("token");
             if (!token) {
                 throw new Error("No authentication token found. Please log in first.");
             }
-            const res = await fetch(`${API_URL}/api/analyze/url`, {
+            const fetchUrl = `${API_URL}/api/analyze/url`;
+            const res = await fetch(fetchUrl, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -52,41 +73,23 @@ export default function Analyze() {
                 },
                 body: JSON.stringify({ url }),
             });
-
             const data = await res.json();
+            console.log("🔍 Analysis response:", data);
             if (!res.ok) throw new Error(data.message || "Failed to analyze URL");
+            if (!data) {
+                throw new Error("No result data received from server");
+            }
             setResult(data);
         } catch (error) {
             setError(error instanceof Error ? error.message : "Failed to analyze URL");
         } finally {
             setIsAnalyzing(false);
         }
-    }, [url, API_URL]);
-
-    const handleGetSuggestions = useCallback(async (category: CategoryKey) => {
-        if (!result) return;
-        try {
-            setLoadingSuggestions(category);
-            const token = localStorage.getItem("token");
-            if (!token) {
-                throw new Error("No authentication token found. Please log in first.");
-            }
-        } catch (error) {
-            setError(error instanceof Error ? error.message : "Failed to get suggestions");
-        } finally {
-            setLoadingSuggestions(null);
-        }
-    }, [result]);
-
-    const clearSuggestion = useCallback((category: CategoryKey) => {
-        setSuggestions(prev => ({ ...prev, [category]: null }));
-    }, []);
-
-    // Calculate overall score
+    };
     const overallScore = useMemo(() => {
-        if (!result) return 0;
+        if (!result || !result.scores) return 0;
         return Math.round(
-            (result.performance.score + result.seo.score + result.accessibility.score + result.bestPractices.score) / 4
+            (result.scores.performance + result.scores.seo + result.scores.accessibility + result.scores.bestPractices) / 4
         );
     }, [result]);
 
@@ -96,27 +99,20 @@ export default function Analyze() {
         bestPractices: { icon: Shield, color: 'text-purple-700', title: 'Best Practices' },
         seo: { icon: Search, color: 'text-yellow-700', title: 'SEO' }
     };
-
-    // const Icon = categoryConfig[key].icon;
     return (
         <div className="min-h-screen bg-slate-900">
-            {/* Hero Section */}
             <section className="relative pt-20 pb-32 overflow-hidden">
-                {/* Background Effects */}
                 <div className="absolute inset-0 bg-slate-900">
                     <div className="absolute inset-0 bg-linear-to-b from-cyan-500/10 via-transparent to-transparent" />
                     <div className="absolute top-0 left-1/4 w-96 h-96 bg-cyan-500/20 rounded-full blur-3xl" />
                     <div className="absolute top-0 right-1/4 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl" />
                 </div>
-
                 <div className="relative z-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-                    {/* Header */}
                     <div className="text-center mb-12">
                         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-800/50 border border-slate-700/50 mb-6">
                             <Sparkles className="w-4 h-4 text-cyan-400" />
                             <span className="text-slate-300 text-sm">Powered by AI</span>
                         </div>
-
                         <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold text-white mb-6 leading-tight">
                             Analyze Your Website
                             <br />
@@ -124,13 +120,10 @@ export default function Analyze() {
                                 Performance with AI
                             </span>
                         </h1>
-
                         <p className="text-lg sm:text-xl text-slate-400 max-w-2xl mx-auto mb-10">
                             Enter your website URL and let our AI analyze its performance, SEO, accessibility, and best practices. Get actionable insights to optimize your site.
                         </p>
                     </div>
-
-                    {/* URL Input Form */}
                     <form onSubmit={handleAnalyze} className="max-w-2xl mx-auto mb-16">
                         <div className="relative flex flex-col sm:flex-row gap-3 p-2 bg-slate-800/80 backdrop-blur-xl rounded-2xl border border-slate-700/50 shadow-2xl shadow-cyan-500/10">
                             <div className="flex-1 relative">
@@ -163,19 +156,14 @@ export default function Analyze() {
                             </button>
                         </div>
                     </form>
-
-                    {/* Error Message */}
                     {error && (
                         <div className="max-w-2xl mx-auto mb-8 p-4 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center gap-3 animate-fade-in">
                             <XCircle className="w-5 h-5 text-red-400 shrink-0" />
                             <p className="text-red-400 text-sm">{error}</p>
                         </div>
                     )}
-
-                    {/* Results */}
                     {result && (
                         <div className="space-y-8 animate-fade-in-up">
-                            {/* Overall Score Card */}
                             <div className="bg-slate-800/50 rounded-2xl border border-slate-700/50 p-8 text-center">
                                 <h2 className="text-4xl font-bold text-white mb-6">Overall Score</h2>
                                 <div className="flex justify-center mb-6">
@@ -187,50 +175,44 @@ export default function Analyze() {
                                 <p className="text-slate-400 text-xl">Your website scores {overallScore}/100 across all metrics</p>
                             </div>
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                {(Object.keys(categoryConfig) as CategoryKey[]).map((key) => {
+                                {(Object.keys(result.scores || {}) as CategoryKey[]).map((key) => {
                                     const Icon = categoryConfig[key].icon;
                                     return (
                                         <button
+                                            key={key}
                                             onClick={() => setActiveTab(key)}
                                             className={`p-4 rounded-xl border transition-all duration-300 text-left group ${activeTab == key
-                                                ? 'bg-slate-700/50 border-cyan-500/50 shadow-lg shadow-cyan-500/10'
+                                                ? 'bg-linear-to-r from-slate-700/50 to-blue-500/50 border-cyan-500 shadow-lg shadow-cyan-500/10'
                                                 : 'bg-slate-900/50 border-slate-700/50 hover:border-slate-600 hover:bg-slate-800/50'
                                                 }`}
                                         >
                                             <div className="flex items-center justify-between mb-2">
-
                                                 <Icon
                                                     className={`w-10 h-10 ${categoryConfig[key].color} border-slate-700 rounded-full border-2 p-2`}
-                                                />
-                                                {/* <categoryConfig[key].icon className={`w-10 h-10 ${categoryConfig[key].color} border-slate-700 rounded-full border-2 p-2`} /> */}
-                                                <CircularProgress score={result[key].score} size={70} strokeWidth={5} />
+                                                /><CircularProgress score={result.scores[key]} size={70} strokeWidth={5} />
                                             </div>
                                             <p className="text-slate-400 text-sm font-medium">{categoryConfig[key].title}</p>
-                                            <p className={`text-lg font-bold ${getScoreColor(result[key].score)}`}>{result[key].score.toFixed(0)}%</p>
+                                            <p className={`text-lg font-bold ${getScoreColor(result.scores[key])}`}>{result.scores[key].toFixed(0)}%</p>
                                         </button>
                                     )
                                 })}
                             </div>
                             <div className="space-y-6">
-                                {activeTab === 'performance' && (
+                                {activeTab == 'performance' && (
                                     <DetailSection
                                         title="Performance"
-                                        score={result.performance.score}
+                                        score={result.scores?.performance || 0}
                                         icon={TrendingUp}
-                                        color="text-green-400"
-                                        issues={[]}
-                                        suggestions={suggestions.performance}
-                                        loadingSuggestions={loadingSuggestions === 'performance'}
-                                        onGetSuggestions={() => handleGetSuggestions('performance')}
-                                        onClearSuggestions={() => clearSuggestion('performance')}
+                                        color="green-400"
+                                        suggestions={result.aiSuggestions?.filter(suggestion => suggestion.category == 'performance') || null}
                                     >
                                         <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
                                             {[
-                                                { label: 'FCP', value: result.performance.fcp, desc: 'First Contentful Paint' },
-                                                { label: 'LCP', value: result.performance.lcp, desc: 'Largest Contentful Paint' },
-                                                { label: 'TBT', value: result.performance.tbt, desc: 'Total Blocking Time' },
-                                                { label: 'CLS', value: result.performance.cls, desc: 'Cumulative Layout Shift' },
-                                                { label: 'Speed Index', value: result.performance.speedIndex, desc: 'Speed Index' }
+                                                { label: 'FCP', value: result.metrics?.fcp || 'N/A', desc: 'First Contentful Paint' },
+                                                { label: 'LCP', value: result.metrics?.lcp || 'N/A', desc: 'Largest Contentful Paint' },
+                                                { label: 'TBT', value: result.metrics?.tbt || 'N/A', desc: 'Total Blocking Time' },
+                                                { label: 'CLS', value: result.metrics?.cls || 'N/A', desc: 'Cumulative Layout Shift' },
+                                                { label: 'Speed Index', value: result.metrics?.speedIndex || 'N/A', desc: 'Speed Index' }
                                             ].map((metric) => (
                                                 <div key={metric.label} className="p-3 bg-slate-900/50 rounded-lg border border-slate-800/50 text-center group hover:border-slate-700/50 transition-colors">
                                                     <p className="text-slate-500 text-xs mb-1">{metric.label}</p>
@@ -241,44 +223,31 @@ export default function Analyze() {
                                         </div>
                                     </DetailSection>
                                 )}
-
                                 {activeTab === 'accessibility' && (
                                     <DetailSection
                                         title="Accessibility"
-                                        score={result.accessibility.score}
+                                        score={result.scores?.accessibility || 0}
                                         icon={Layout}
-                                        color="text-blue-400"
-                                        issues={result.accessibility.issues}
-                                        suggestions={suggestions.accessibility}
-                                        loadingSuggestions={loadingSuggestions === 'accessibility'}
-                                        onGetSuggestions={() => handleGetSuggestions('accessibility')}
-                                        onClearSuggestions={() => clearSuggestion('accessibility')}
+                                        color="blue-400"
+                                        suggestions={result.aiSuggestions?.filter(suggestion => suggestion.category == 'accessibility') || null}
                                     />
                                 )}
                                 {activeTab === 'bestPractices' && (
                                     <DetailSection
                                         title="Best Practices"
-                                        score={result.bestPractices.score}
+                                        score={result.scores?.bestPractices || 0}
                                         icon={Shield}
-                                        color="text-purple-400"
-                                        issues={result.bestPractices.issues}
-                                        suggestions={suggestions.bestPractices}
-                                        loadingSuggestions={loadingSuggestions === 'bestPractices'}
-                                        onGetSuggestions={() => handleGetSuggestions('bestPractices')}
-                                        onClearSuggestions={() => clearSuggestion('bestPractices')}
+                                        color="purple-400"
+                                        suggestions={result.aiSuggestions?.filter(suggestion => suggestion.category === 'bestPractices') || null}
                                     />
                                 )}
                                 {activeTab === 'seo' && (
                                     <DetailSection
                                         title="SEO"
-                                        score={result.seo.score}
+                                        score={result.scores?.seo || 0}
                                         icon={Search}
-                                        color="text-yellow-400"
-                                        issues={result.seo.issues}
-                                        suggestions={suggestions.seo}
-                                        loadingSuggestions={loadingSuggestions === 'seo'}
-                                        onGetSuggestions={() => handleGetSuggestions('seo')}
-                                        onClearSuggestions={() => clearSuggestion('seo')}
+                                        color="yellow-400"
+                                        suggestions={result.aiSuggestions?.filter(suggestion => suggestion.category === 'seo') || null}
                                     />
                                 )}
                             </div>
@@ -291,154 +260,7 @@ export default function Analyze() {
 }
 
 
-interface MetricData {
-    score: number;
-    issues: string[];
-}
-
-interface PerformanceData {
-    score: number;
-    fcp: string;
-    lcp: string;
-    tbt: string;
-    cls: string;
-    speedIndex: string;
-}
-
-interface AnalysisResult {
-    performance: PerformanceData;
-    seo: MetricData;
-    accessibility: MetricData;
-    bestPractices: MetricData;
-}
-
-type CategoryKey = 'performance' | 'seo' | 'accessibility' | 'bestPractices';
-
-const getScoreColor = (score: number): string => {
-    if (score >= 90) return 'text-green-500';
-    if (score >= 70) return 'text-yellow-700';
-    return 'text-red-500';
-};
-
-const getScoreBg = (score: number): string => {
-    if (score >= 90) return 'bg-green-500/20 border-green-500/30';
-    if (score >= 70) return 'bg-yellow-500/20 border-yellow-500/30';
-    return 'bg-red-500/20 border-red-500/30';
-};
 
 
 
 
-// Detail Section Component
-const DetailSection = ({
-    title,
-    score,
-    icon: Icon,
-    issues,
-    suggestions,
-    loadingSuggestions,
-    onGetSuggestions,
-    onClearSuggestions,
-    children
-}: {
-    title: string;
-    score: number;
-    icon: React.ElementType;
-    color: string;
-    issues: string[];
-    suggestions: string | null;
-    loadingSuggestions: boolean;
-    onGetSuggestions: () => void;
-    onClearSuggestions: () => void;
-    children?: React.ReactNode;
-}) => {
-
-    return (
-        <div className="bg-slate-800/50 rounded-2xl border border-slate-700/50 overflow-hidden transition-all duration-300 hover:border-slate-600/50">
-            {/* Header */}
-            <button
-                className="w-full p-6 flex items-center justify-between bg-linear-to-r from-slate-800/50 to-transparent hover:from-slate-700/30 transition-colors"
-            >
-                <div className="flex items-center gap-4">
-                    <div className={`p-3 rounded-xl ${getScoreBg(score)}`}>
-                        <Icon className={`w-6 h-6 ${getScoreColor(score)}`} />
-                    </div>
-                    <div className="text-left">
-                        <h3 className="text-xl font-bold text-white">{title}</h3>
-                    </div>
-                </div>
-                <div className="flex items-center gap-4">
-                    <CircularProgress score={score} size={60} strokeWidth={6} />
-                </div>
-            </button>
-            <div className="p-6 pt-0 border-t border-slate-700/50 animate-fade-in">
-                {children}
-                <div className="mt-6">
-                    <h4 className="text-sm font-semibold text-slate-300 mb-3 flex items-center gap-2">
-                        <AlertCircle className="w-4 h-4 text-slate-400" />
-                        Issues Found ({issues.length})
-                    </h4>
-                    {issues.length > 0 ? (
-                        <ul className="space-y-2">
-                            {issues.map((issue, index) => (
-                                <li
-                                    key={index}
-                                    className="flex items-start gap-3 p-3 bg-slate-900/50 rounded-lg border border-slate-800/50 hover:border-slate-700/50 transition-colors"
-                                >
-                                    <XCircle className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
-                                    <span className="text-slate-300 text-sm leading-relaxed">{issue}</span>
-                                </li>
-                            ))}
-                        </ul>
-                    ) : (
-                        <div className="flex items-center gap-2 p-4 bg-green-500/10 rounded-lg border border-green-500/20">
-                            <CheckCircle2 className="w-5 h-5 text-green-400" />
-                            <span className="text-green-400 text-sm font-medium">No issues found! Great job!</span>
-                        </div>
-                    )}
-                </div>
-                <div className="mt-6">
-                    {!suggestions ? (
-                        <button
-                            onClick={onGetSuggestions}
-                            disabled={loadingSuggestions}
-                            className= " cursor-pointer w-full px-4 py-3 bg-linear-to-r from-purple-500 to-pink-600 hover:from-purple-400 hover:to-pink-500 disabled:from-slate-700 disabled:to-slate-600 text-white font-semibold rounded-xl transition-all duration-300 disabled:opacity-70 flex items-center justify-center gap-2 shadow-lg shadow-purple-500/20 hover:shadow-purple-500/30"
-                        >
-                            {loadingSuggestions ? (
-                                <>
-                                    <RefreshCw className="w-4 h-4 animate-spin" />
-                                    Generating AI Suggestions...
-                                </>
-                            ) : (
-                                <>
-                                    <Sparkles className="w-4 h-4" />
-                                    Get AI-Powered Suggestions
-                                </>
-                            )}
-                        </button>
-                    ) : (
-                        <div className="bg-linear-to-br from-purple-900/20 to-pink-900/20 rounded-xl border border-purple-500/20 overflow-hidden">
-                            <div className="px-4 py-3 bg-purple-500/10 border-b border-purple-500/20 flex items-center justify-between">
-                                <div className="flex items-center gap-2">
-                                    <Zap className="w-4 h-4 text-purple-400" />
-                                    <span className="text-purple-300 text-sm font-semibold">AI Suggestions</span>
-                                </div>
-                                <button
-                                    onClick={onClearSuggestions}
-                                    className="text-slate-400 hover:text-white text-xs transition-colors"
-                                >
-                                    Clear
-                                </button>
-                            </div>
-                            <div className="p-4">
-                                <p className="text-slate-200 text-sm leading-relaxed whitespace-pre-wrap">
-                                    {suggestions}
-                                </p>
-                            </div>
-                        </div>
-                    )}
-                </div>
-            </div>
-        </div>
-    );
-};

@@ -1,30 +1,28 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const lighthouseSchema = new mongoose.Schema(
   {
-    projectId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Project",
-      required: true,
-    },
-
     userId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
     },
-
-    testedAt: {
-      type: Date,
+    url: {
+      type: String,
       required: true,
-      index: true, // important for graphs
+      lowercase: true,
+      trim: true,
     },
 
+    name: {
+      type: String,
+      required: true,
+    },
     scores: {
-      performance: { type: Number, required: true },
-      accessibility: { type: Number, required: true },
-      bestPractices: { type: Number, required: true },
-      seo: { type: Number, required: true },
+      performance: Number,
+      accessibility: Number,
+      bestPractices: Number,
+      seo: Number,
     },
 
     metrics: {
@@ -35,26 +33,49 @@ const lighthouseSchema = new mongoose.Schema(
       speedIndex: Number,
     },
 
-    environment: {
-      device: {
-        type: String,
-        enum: ["mobile", "desktop"],
-        default: "mobile",
+    issues: [
+      {
+        category: String,
+        message: String,
+        severity: {
+          type: String,
+          enum: ["low", "medium", "high"],
+        },
       },
-      location: {
-        type: String,
-        default: "India",
+    ],
+
+    aiSuggestions: [
+      {
+        category: {
+          type: String,
+          enum: ["performance", "seo", "accessibility", "bestPractices"],
+        },
+        issue: String,
+        severity: {
+          type: String,
+          enum: ["low", "medium", "high"],
+        },
+        fix: String,
+        code: String,
       },
-    },
+    ],
 
     rawReport: {
-      type: Object, // or Schema.Types.Mixed
+      type: Object,
+      select: false, // 🔥 optimized
+    },
+
+    testedAt: {
+      type: Date,
+      required: true,
+      index: true,
     },
   },
-  { timestamps: true },
+  { timestamps: true }
 );
 
-// 🔥 Index for fast dashboard queries
+// Indexes
 lighthouseSchema.index({ projectId: 1, testedAt: 1 });
+lighthouseSchema.index({ userId: 1, url: 1 });
 
-module.exports = mongoose.model("Lighthouse", lighthouseSchema);
+export default mongoose.model("Lighthouse", lighthouseSchema);

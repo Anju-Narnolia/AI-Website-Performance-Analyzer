@@ -1,10 +1,10 @@
-const express = require("express");
-const jwt = require("jsonwebtoken");
-const bcrypt = require("bcrypt");
+import express from "express";
+import jwt from "jsonwebtoken";
+import bcrypt from "bcrypt";
 const router = express.Router();
-const User = require("../model/user");
-const { JWT_SECRET } = require("../config.js");
-// const authMiddleware = require("../middleware/auth");
+import User from "../model/user.js";
+import { JWT_SECRET } from "../config.js";
+import authMiddleware from "../middleware/auth.js";
 
 // Register a new user
 router.post("/register", async (req, res) => {
@@ -32,6 +32,8 @@ router.post("/register", async (req, res) => {
   }
 });
 
+
+
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;
 
@@ -56,11 +58,9 @@ router.post("/login", async (req, res) => {
 
     // ✅ Token
     console.log("🔑 Creating token with JWT_SECRET");
-    const token = jwt.sign(
-      { userId: user._id },
-      JWT_SECRET,
-      { expiresIn: "1h" }
-    );
+    const token = jwt.sign({ userId: user._id }, JWT_SECRET, {
+      expiresIn: "1h",
+    });
     console.log("✅ Token created successfully");
 
     // ✅ (BEST PRACTICE) Send token in cookie
@@ -81,11 +81,82 @@ router.post("/login", async (req, res) => {
         name: user.name,
       },
     });
-
   } catch (error) {
     console.error("Error logging in user", error);
     res.status(500).json({ message: "Server error" });
   }
 });
 
-module.exports = router;
+// Get user profile
+router.get("/profile", authMiddleware, async (req, res) => {
+  try {
+    const user = await User.findById(req.userId).select("-password");
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    res.json({
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      companyName: user.companyName,
+      createdAt: user.createdAt,
+    });
+  } catch (error) {
+    console.error("Error fetching user profile:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// Update user profile
+router.put("/profile", authMiddleware, async (req, res) => {
+  const { name, password, companyName } = req.body;
+
+  // ✅ Validation
+  if (!name && !password && !companyName) {
+    return res
+      .status(400)
+      .json({ message: "At least one field is required to update" });
+  }
+
+  if (name && name.length < 2) {
+    return res.status(400).json({ message: "Name must be at least 2 characters" });
+  }
+
+  if (password && password.length < 6) {
+    return res
+      .status(400)
+      .json({ message: "Password must be at least 6 characters" });
+  }
+
+  try {
+    const user = await User.findById(req.userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Update fields
+    if (name) user.name = name;
+    if (companyName) user.companyName = companyName;
+    if (password) {
+      user.password = password; // Will be hashed by pre-save hook
+    }
+
+    await user.save();
+    console.log("✅ User profile updated:", user._id);
+
+    res.json({
+      message: "Profile updated successfully",
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        companyName: user.companyName,
+      },
+    });
+  } catch (error) {
+    console.error("Error updating user profile:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+export default router;
