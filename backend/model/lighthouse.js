@@ -26,11 +26,11 @@ const lighthouseSchema = new mongoose.Schema(
     },
 
     metrics: {
-      fcp: Number,
-      lcp: Number,
-      cls: Number,
-      tbt: Number,
-      speedIndex: Number,
+      fcp: String,
+      lcp: String,
+      cls: String,
+      tbt: String,
+      speedIndex: String,
     },
 
     issues: [

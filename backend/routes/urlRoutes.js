@@ -1,6 +1,5 @@
 import express, { raw } from "express";
 import * as chromeLauncher from "chrome-launcher";
-import Website from "../model/website.js";
 import Lighthouse from "../model/lighthouse.js";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import authMiddleware from "../middleware/auth.js";

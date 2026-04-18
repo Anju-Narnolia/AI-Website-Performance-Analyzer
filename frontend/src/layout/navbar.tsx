@@ -1,7 +1,7 @@
 import { Menu, X, Zap, User, } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { useAuth } from '../../context/useAuth';
+import { useAuth } from '../context/useAuth';
 
 export default function Navbar() {
     const [isScrolled, setIsScrolled] = useState(false);

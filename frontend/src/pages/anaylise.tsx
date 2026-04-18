@@ -10,8 +10,8 @@ import {
     Sparkles,
     RefreshCw,
 } from 'lucide-react';
-import CircularProgress from './components/CircularProgress';
-import DetailSection from './components/DetailSection';
+import CircularProgress from '../components/CircularProgress';
+import DetailSection from '../components/DetailSection';
 interface MetricsData {
     fcp: string;
     lcp: string;

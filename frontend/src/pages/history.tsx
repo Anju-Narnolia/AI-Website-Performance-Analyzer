@@ -1,13 +1,10 @@
 import {
-  Gauge,
   Search,
   AlertCircle,
-  TrendingUp,
   Clock,
   Globe,
   Filter,
   ExternalLink,
-  CheckCircle,
 } from "lucide-react";
 import { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
@@ -18,12 +15,19 @@ interface WebsiteHistory {
   url: string;
   name: string;
   createdAt: string;
-  latestScore: {
+  scores: {
     performance: number;
     accessibility: number;
     seo: number;
     bestPractices: number;
     testedAt: string;
+  } | null;
+  metrics: {
+    fcp: string,
+    lcp: string,
+    cls: string,
+    tbt: string,
+    speedIndex: string,
   } | null;
   reportsCount: number;
 }
@@ -66,6 +70,11 @@ export default function History() {
           throw new Error(`Failed to fetch: ${response.status}`);
         }
         const result = await response.json();
+        // console.log(result)
+
+        console.log("This is the website data:", result.websites);
+        console.log("This is the scores:", result.websites.scores);
+
         setWebsites(result.websites || []);
       } catch (err) {
         console.error("Dashboard fetch error:", err);
@@ -90,8 +99,9 @@ export default function History() {
         }
       }
       // Score filter
-      if (site.latestScore) {
-        const avgScore = (site.latestScore.performance + site.latestScore.accessibility + site.latestScore.seo + site.latestScore.bestPractices) / 4;
+      if (site.scores) {
+        const avgScore = (site.scores.performance + site.scores.accessibility + site.scores.seo + site.scores.bestPractices) / 4;
+        console.log(avgScore)
         if (filterScore === "excellent" && avgScore < 90) return false;
         if (filterScore === "good" && (avgScore < 70 || avgScore >= 90))
           return false;
@@ -111,9 +121,9 @@ export default function History() {
       else if (sortBy === "name") {
         return a.name.localeCompare(b.name);
       }
-      else if (sortBy === "score" && a.latestScore && b.latestScore) {
-        const aAvg = (a.latestScore.performance + a.latestScore.accessibility + a.latestScore.seo + a.latestScore.bestPractices) / 4;
-        const bAvg = (b.latestScore.performance + b.latestScore.accessibility + b.latestScore.seo + b.latestScore.bestPractices) / 4;
+      else if (sortBy === "score" && a.scores && b.scores) {
+        const aAvg = (a.scores.performance + a.scores.accessibility + a.scores.seo + a.scores.bestPractices) / 4;
+        const bAvg = (b.scores.performance + b.scores.accessibility + b.scores.seo + b.scores.bestPractices) / 4;
         return bAvg - aAvg;
       }
       return 0;
@@ -229,16 +239,16 @@ export default function History() {
         {!loading && !error && processedWebsites.length > 0 && (
           <div className="space-y-4">
             {processedWebsites.map((website) => {
-              const avgScore = website.latestScore
-                ? (website.latestScore.performance +
-                  website.latestScore.accessibility +
-                  website.latestScore.seo +
-                  website.latestScore.bestPractices) /
+              const avgScore = website.scores
+                ? (website.scores.performance +
+                  website.scores.accessibility +
+                  website.scores.seo +
+                  website.scores.bestPractices) /
                 4
                 : 0;
               return (
                 <div
-                  key={website.id}
+                  key={website.createdAt}
                   className="bg-slate-800/50 border border-slate-700/50 rounded-xl p-6 hover:border-slate-600/50 transition-all duration-300 group"
                 >
                   <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
@@ -266,32 +276,20 @@ export default function History() {
                       <div className="mt-4 flex flex-wrap gap-4 text-sm text-slate-400">
                         <span className="flex items-center gap-1">
                           <Clock className="w-4 h-4" />
-                          {website.createdAt ? new Date(website.createdAt).toLocaleDateString() : "Unknown date"}
+                          {website.createdAt ? new Date(website.createdAt).toLocaleString() : "Unknown date"}
                         </span>
-                        <span className="flex items-center gap-1">
-                          <Gauge className="w-4 h-4" />
-                          {website.reportsCount}{" "}
-                          {website.reportsCount === 1 ? "report" : "reports"}
-                        </span>
-                        {website.latestScore && (
-                          <span className="flex items-center gap-1">
-                            <CheckCircle className="w-4 h-4 text-green-400" />
-                            Last tested:{" "}
-                            {website.latestScore.testedAt ? new Date(website.latestScore.testedAt).toLocaleDateString() : "Unknown date"}
-                          </span>
-                        )}
                       </div>
                     </div>
-                    {website.latestScore ? (
+                    {website.scores ? (
                       <div className="flex items-center gap-6">
                         <div className="grid grid-cols-2 gap-3">
                           <div className="text-center">
                             <div
                               className={`text-xl font-bold ${getScoreColor(
-                                website.latestScore.performance
+                                website.scores.performance
                               )}`}
                             >
-                              {website.latestScore.performance.toFixed(0)}
+                              {website.scores.performance.toFixed(0)}
                             </div>
                             <div className="text-xs text-slate-500">
                               Performance
@@ -300,20 +298,20 @@ export default function History() {
                           <div className="text-center">
                             <div
                               className={`text-xl font-bold ${getScoreColor(
-                                website.latestScore.seo
+                                website.scores.seo
                               )}`}
                             >
-                              {website.latestScore.seo.toFixed(0)}
+                              {website.scores.seo.toFixed(0)}
                             </div>
                             <div className="text-xs text-slate-500">SEO</div>
                           </div>
                           <div className="text-center">
                             <div
                               className={`text-xl font-bold ${getScoreColor(
-                                website.latestScore.accessibility
+                                website.scores.accessibility
                               )}`}
                             >
-                              {website.latestScore.accessibility.toFixed(0)}
+                              {website.scores.accessibility.toFixed(0)}
                             </div>
                             <div className="text-xs text-slate-500">
                               Accessibility
@@ -322,10 +320,10 @@ export default function History() {
                           <div className="text-center">
                             <div
                               className={`text-xl font-bold ${getScoreColor(
-                                website.latestScore.bestPractices
+                                website.scores.bestPractices
                               )}`}
                             >
-                              {website.latestScore.bestPractices.toFixed(0)}
+                              {website.scores.bestPractices.toFixed(0)}
                             </div>
                             <div className="text-xs text-slate-500">
                               Best Practices
@@ -341,13 +339,6 @@ export default function History() {
                             {avgScore.toFixed(0)}
                           </span>
                         </div>
-                        <button
-                          onClick={() => navigate("/analyze")}
-                          className="px-4 py-2 bg-slate-700/50 hover:bg-slate-600/50 text-slate-300 hover:text-white rounded-lg transition-all flex items-center gap-2 group/btn"
-                        >
-                          <span className="text-sm font-medium">View</span>
-                          <TrendingUp className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
-                        </button>
                       </div>
                     ) : (
                       <div className="text-center py-4 px-6 bg-slate-900/50 rounded-lg">

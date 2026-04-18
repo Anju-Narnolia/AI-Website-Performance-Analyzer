@@ -289,18 +289,7 @@ const DetailSection = ({
                                                                 </div>
                                                             )}
                                                             {(suggestion as SuggestionData).code && <CodeBlock code={(suggestion as SuggestionData).code!} />}
-
-                                                            {/* Action Buttons */}
-                                                            <div className="flex items-center gap-3 mt-4 pt-4 border-t border-slate-700/30">
-                                                                <button className="flex items-center gap-2 px-4 py-2 rounded-lg bg-violet-600 hover:bg-violet-500 text-white text-sm font-medium transition-all duration-200 shadow-lg shadow-violet-500/25 hover:shadow-violet-500/40">
-                                                                    <Check className="w-4 h-4" />
-                                                                    Apply Fix
-                                                                </button>
-                                                                <button className="flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-700/50 hover:bg-slate-700 text-slate-300 text-sm font-medium transition-all duration-200">
-                                                                    <ArrowRight className="w-4 h-4" />
-                                                                    Learn More
-                                                                </button>
-                                                            </div>
+                                                            
                                                         </div>
                                                     </div>
                                                 </div>
