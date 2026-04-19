@@ -1,0 +1,42 @@
+services:
+  frontend:
+    build: ./frontend
+    container_name: ai-analyzer-frontend
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    working_dir: /app
+
+  backend:
+    build: ./backend
+    container_name: ai-analyzer-backend
+    env_file:
+      - ./backend/.env
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+  nginx:
+    image: nginx:alpine
+    container_name: nginx-server
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - frontend
+      - backend
+
+  mongo:
+    image: mongo:7
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+volumes:
+  mongo-data:

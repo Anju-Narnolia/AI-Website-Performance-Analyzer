@@ -99,7 +99,7 @@ export default function Navbar() {
                                 onClick={() => SetDropDown(!isDropDown)}
                                 className="px-4 py-2 bg-slate-800/50 hover:bg-slate-700/50 border border-slate-700 text-white text-sm font-medium rounded-lg transition-all duration-300 flex items-center gap-2 cursor-pointer"
                             >
-                                <User className="w-4 h-4" />
+                                <User className="w-4 h-4" />Profile
                             </button>
 
                             {/* Dropdown */}
