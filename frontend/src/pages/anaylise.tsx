@@ -46,7 +46,7 @@ export default function Analyze() {
     const [result, setResult] = useState<AnalysisResult | null>(null);
     const [activeTab, setActiveTab] = useState<CategoryKey>('performance');
     const [error, setError] = useState<string | null>(null);
-    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+    const API_URL = import.meta.env.VITE_API_URL || 'http://16.170.172.53:3000';
     const token = localStorage.getItem('token');
 
     const getScoreColor = (score: number): string => {
