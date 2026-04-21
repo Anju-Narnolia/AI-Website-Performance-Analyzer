@@ -10,7 +10,7 @@ export default function Register() {
         confirmPassword: '',
         companyName: ''
     });
-    const API_URL = import.meta.env.VITE_API_URL || "http://16.170.172.53:5000";
+    const API_URL = import.meta.env.VITE_API_URL || "http://16.170.172.53:3000";
 
     const handleRegister = async (e: React.FormEvent) => {
         e.preventDefault();

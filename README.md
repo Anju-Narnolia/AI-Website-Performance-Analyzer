@@ -61,7 +61,7 @@ npm install
 Create a `.env` file in the `backend/` directory with the following variables:
 ```env
 # Server Configuration
-PORT=5000
+PORT=3000
 NODE_ENV=development
 
 # Database
@@ -83,7 +83,7 @@ npm install
 
 Create a `.env` file in the `frontend/` directory:
 ```env
-VITE_API_URL=http://localhost:5000
+VITE_API_URL=http://localhost:3000
 ```
 
 #### Step 4: Start Development Servers
@@ -93,7 +93,7 @@ VITE_API_URL=http://localhost:5000
 cd backend
 npm start
 ```
-Backend will run on `http://localhost:5000`
+Backend will run on `http://localhost:3000`
 
 **Terminal 2 - Frontend Development Server:**
 ```bash
@@ -104,7 +104,7 @@ Frontend will run on `http://localhost:5173`
 
 #### Step 5: Access the Application
 - Frontend: `http://localhost:5173`
-- Backend API: `http://localhost:5000/api`
+- Backend API: `http://localhost:3000/api`
 
 ### Option 2: Docker Compose Deployment
 
