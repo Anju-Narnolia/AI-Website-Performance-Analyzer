@@ -100,10 +100,10 @@ Backend will run on `http://localhost:3000`
 cd frontend
 npm run dev
 ```
-Frontend will run on `http://localhost:5173`
+Frontend will run on `http://localhost:5177`
 
 #### Step 5: Access the Application
-- Frontend: `http://localhost:5173`
+- Frontend: `http://localhost:5177`
 - Backend API: `http://localhost:3000/api`
 
 ### Option 2: Docker Compose Deployment

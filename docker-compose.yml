@@ -3,7 +3,7 @@ services:
     build: ./frontend
     container_name: ai-analyzer-frontend
     ports:
-      - "5173:5173"
+      - "5177:5177"
     volumes:
       - ./frontend:/app
       - /app/node_modules
