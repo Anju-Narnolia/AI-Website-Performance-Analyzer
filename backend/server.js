@@ -6,14 +6,14 @@ import userRoutes from "./routes/userRoutes.js";
 import urlRoutes from "./routes/urlRoutes.js";
 import dataRoutes from "./routes/data.js";
 import authMiddleware from "./middleware/auth.js";
+import client from "prom-client";
 
 dotenv.config();
 
 const app = express();
-
 app.use(
   cors({
-    origin: "*", 
+    origin: "*",
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
@@ -32,6 +32,33 @@ const connectdb = async () => {
   }
 };
 connectdb();
+const register = new client.Registry(); // Create a Registry for Prometheus metrics
+client.collectDefaultMetrics({ register }); // Collect default metrics (CPU, memory, etc.)
+const httpRequestCounter = new client.Counter({
+  name: "http_requests_total",
+  help: "Total number of HTTP requests",
+  labelNames: ["method", "route", "status"],
+});
+
+register.registerMetric(httpRequestCounter);
+
+// Middleware to track requests
+app.use((req, res, next) => {
+  res.on("finish", () => {
+    httpRequestCounter.inc({
+      method: req.method,
+      route: req.route ? req.route.path : req.path,
+      status: res.statusCode,
+    });
+  });
+  next();
+});
+// 🔥 IMPORTANT: metrics endpoint
+app.get("/metrics", async (req, res) => {
+  res.set("Content-Type", register.contentType);
+  res.end(await register.metrics());
+  res.send("metrics endpoint: " + register.metrics());
+});
 
 app.get("/", (req, res) => {
   res.send("backend server is running");

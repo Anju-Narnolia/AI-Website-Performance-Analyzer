@@ -21,6 +21,7 @@
     "jsonwebtoken": "^9.0.3",
     "lighthouse": "^13.1.0",
     "mongoose": "^9.3.3",
-    "openai": "^6.34.0"
+    "openai": "^6.34.0",
+    "prom-client": "^15.1.3"
   }
 }
