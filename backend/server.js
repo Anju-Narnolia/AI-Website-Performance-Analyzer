@@ -1,17 +1,30 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import moongoose from "mongoose";
+import mongoose from "mongoose";
 import userRoutes from "./routes/userRoutes.js";
 import urlRoutes from "./routes/urlRoutes.js";
 import dataRoutes from "./routes/data.js";
 import authMiddleware from "./middleware/auth.js";
-import client from "prom-client";
 import promBundle from "express-prom-bundle";
 
 dotenv.config();
 
 const app = express();
+
+//PROMETHEUS SETUP
+const metricsMiddleware = promBundle({
+  includeMethod: true,
+  includePath: true,
+  includeStatusCode: true,
+  promClient: {
+    collectDefaultMetrics: {},
+  },
+});
+
+app.use(metricsMiddleware); // 👈 MUST be before routes
+
+//MIDDLEWARES
 app.use(
   cors({
     origin: "*",
@@ -22,57 +35,23 @@ app.use(
 );
 
 app.use(express.json());
-const metricsMiddleware = promBundle({
-  includeMethod: true,
-  includePath: true,
-  includeStatusCode: true,
-  promClient: {
-    collectDefaultMetrics: {},
-  },
-});
-app.use(metricsMiddleware);
-const connectdb = async () => {
+
+// DATABASE CONNECTION
+const connectDB = async () => {
   try {
-    await moongoose.connect(process.env.MONGO_URI);
-    console.log("MongoDB connected successfully");
+    await mongoose.connect(process.env.MONGO_URI);
+    console.log("✅ MongoDB connected successfully");
   } catch (error) {
-    console.error("MongoDB connection failed", error);
+    console.error("❌ MongoDB connection failed", error);
     process.exit(1);
   }
 };
-connectdb();
 
-const register = new client.Registry(); // Create a Registry for Prometheus metrics
-client.collectDefaultMetrics({ register }); // Collect default metrics (CPU, memory, etc.)
+connectDB();
 
-const httpRequestCounter = new client.Counter({
-  name: "http_requests_total",
-  help: "Total number of HTTP requests",
-  labelNames: ["method", "route", "status"],
-});
-
-
-register.registerMetric(httpRequestCounter);
-
-// Middleware to track requests
-app.use((req, res, next) => {
-  res.on("finish", () => {
-    end({
-      method: req.method,
-      route: req.baseUrl + (req.route?.path || req.path),
-      status: res.statusCode,
-    });
-  });
-  next();
-});
-
-app.get("/metrics", async (req, res) => {
-  res.set("Content-Type", register.contentType);
-  res.end(await register.metrics());
-});
-
+// ROUTES
 app.get("/", (req, res) => {
-  res.send("backend server is running");
+  res.send("🚀 Backend server is running");
 });
 
 app.get("/api/test-auth", authMiddleware, (req, res) => {
@@ -83,8 +62,10 @@ app.use("/api/user", userRoutes);
 app.use("/api/analyze", urlRoutes);
 app.use("/api/dashboard", dataRoutes);
 
+// SERVER START
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+  console.log(`🔥 Server running on port ${PORT}`);
+  console.log(`📊 Metrics available at: /metrics`);
 });
