@@ -49,14 +49,13 @@ const httpRequestCounter = new client.Counter({
   name: "http_requests_total",
   help: "Total number of HTTP requests",
   labelNames: ["method", "route", "status"],
-  buckets: [0.1, 0.5, 1, 2, 5],
 });
+
 
 register.registerMetric(httpRequestCounter);
 
 // Middleware to track requests
 app.use((req, res, next) => {
-  const end = httpRequestDuration.startTimer();
   res.on("finish", () => {
     end({
       method: req.method,
