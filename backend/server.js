@@ -7,6 +7,7 @@ import urlRoutes from "./routes/urlRoutes.js";
 import dataRoutes from "./routes/data.js";
 import authMiddleware from "./middleware/auth.js";
 import client from "prom-client";
+import promBundle from "express-prom-bundle";
 
 dotenv.config();
 
@@ -21,7 +22,15 @@ app.use(
 );
 
 app.use(express.json());
-
+const metricsMiddleware = promBundle({
+  includeMethod: true,
+  includePath: true,
+  includeStatusCode: true,
+  promClient: {
+    collectDefaultMetrics: {},
+  },
+});
+app.use(metricsMiddleware);
 const connectdb = async () => {
   try {
     await moongoose.connect(process.env.MONGO_URI);
@@ -32,32 +41,35 @@ const connectdb = async () => {
   }
 };
 connectdb();
+
 const register = new client.Registry(); // Create a Registry for Prometheus metrics
 client.collectDefaultMetrics({ register }); // Collect default metrics (CPU, memory, etc.)
+
 const httpRequestCounter = new client.Counter({
   name: "http_requests_total",
   help: "Total number of HTTP requests",
   labelNames: ["method", "route", "status"],
+  buckets: [0.1, 0.5, 1, 2, 5],
 });
 
 register.registerMetric(httpRequestCounter);
 
 // Middleware to track requests
 app.use((req, res, next) => {
+  const end = httpRequestDuration.startTimer();
   res.on("finish", () => {
-    httpRequestCounter.inc({
+    end({
       method: req.method,
-      route: req.route ? req.route.path : req.path,
+      route: req.baseUrl + (req.route?.path || req.path),
       status: res.statusCode,
     });
   });
   next();
 });
-// 🔥 IMPORTANT: metrics endpoint
+
 app.get("/metrics", async (req, res) => {
   res.set("Content-Type", register.contentType);
   res.end(await register.metrics());
-  res.send("metrics endpoint: " + register.metrics());
 });
 
 app.get("/", (req, res) => {
