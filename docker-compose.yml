@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   frontend:
     build: ./frontend
@@ -19,6 +21,7 @@ services:
     volumes:
       - ./backend:/app
       - /app/node_modules
+
   nginx:
     image: nginx:alpine
     container_name: nginx-server
@@ -37,31 +40,34 @@ services:
       - "27017:27017"
     volumes:
       - mongo-data:/data/db
+
   node-exporter:
     image: prom/node-exporter
     container_name: node-exporter
     ports:
       - "9100:9100"
     volumes:
-    - /proc:/host/proc:ro
-    - /sys:/host/sys:ro
-    - /:/rootfs:ro
-  command:
-    - '--path.procfs=/host/proc'
-    - '--path.sysfs=/host/sys'
-    - '--path.rootfs=/rootfs'
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+      - '--path.rootfs=/rootfs'
     restart: unless-stopped
+
   cadvisor:
     image: gcr.io/cadvisor/cadvisor
     container_name: cadvisor
     ports:
       - "9323:8080"
     volumes:
-    - /:/rootfs:ro
-    - /var/run:/var/run:ro
-    - /sys:/sys:ro
-    - /var/lib/docker/:/var/lib/docker:ro
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
     restart: unless-stopped
+
   promtail:
     image: grafana/promtail
     container_name: promtail
