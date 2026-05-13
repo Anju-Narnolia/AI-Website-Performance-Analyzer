@@ -21,6 +21,7 @@ const getModel = () => {
   return model;
 };
 
+// get url the check and get lighhouse data then send data to the geminai and it give us suggestion to enhance the score
 router.post("/url", authMiddleware, async (req, res) => {
   const lighthouse = (await import("lighthouse")).default;
   console.log("Received URL analysis request:", req.body);

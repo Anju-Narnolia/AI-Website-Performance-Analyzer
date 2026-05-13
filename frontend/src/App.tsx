@@ -9,6 +9,7 @@ import Home from './pages/home'
 import History from './pages/history'
 import Analyze from './pages/anaylise'
 import Profile from './pages/profile'
+import WebsiteHistory from './pages/WebsiteHistory'
 
 function App() {
 
@@ -20,6 +21,10 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/history" element={<History />} />
+        <Route
+          path="/history/:website"
+          element={<WebsiteHistory />}
+        />
         <Route path="/analyze" element={<Analyze />} />
         <Route path="/profile" element={<Profile />} />
       </Routes >

@@ -6,9 +6,8 @@ const router = express.Router();
 
 // Get user's website history with latest scores
 router.get("/history", authMiddleware, async (req, res) => {
-  console.log("trying to get webite from lighthouse");
+  console.log("trying to get website data from lighthouse for the history page");
   try {
-    // Get all websites for this user
     const websites = await Lighthouse.find({ userId: req.userId }).sort({
       createdAt: -1,
     });
@@ -27,7 +26,6 @@ router.get("/history", authMiddleware, async (req, res) => {
         createdAt,
       }),
     );
-    console.log("websites with scores:", websitesWithScores);
     res.json({ websites: websitesWithScores });
   } catch (error) {
     console.error("Error fetching website history:", error);
@@ -54,4 +52,29 @@ router.get("/data", authMiddleware, async (req, res) => {
   }
 });
 
+//get all data of a single website for dashboard
+router.get("/scores/:url", authMiddleware, async (req, res) => {
+  console.log("trying to get website data from db for the dashboard");
+  console.log("Received URL parameter:", req.userId, req.params.url);
+  try {
+    const name = req.params.url;
+    const websites = await Lighthouse.find({ name: name }).sort({
+      createdAt: -1,
+    });
+    const websitesWithScores = websites.map(
+      ({ name, url, scores,createdAt }) => ({
+        name,
+        url,
+        scores,
+        createdAt
+      })
+    );
+    console.log("website data:", websitesWithScores);
+    res.json(websitesWithScores);
+  } catch (err) { 
+    res.status(500).json({
+      error: err.message,
+    });
+  }
+});
 export default router;

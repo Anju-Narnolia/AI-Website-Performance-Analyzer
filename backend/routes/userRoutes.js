@@ -32,49 +32,36 @@ router.post("/register", async (req, res) => {
   }
 });
 
-
-
+//login a new user
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;
-
-  // ✅ Validation
   if (!email || !password) {
     return res.status(400).json({ message: "Email and password are required" });
   }
 
   try {
     const user = await User.findOne({ email });
-
-    // ✅ Use same message (security best practice)
     if (!user) {
       return res.status(401).json({ message: "Invalid email or password" });
     }
-
     const isMatch = await bcrypt.compare(password, user.password);
-
     if (!isMatch) {
       return res.status(401).json({ message: "Invalid email or password" });
     }
-
-    // ✅ Token
     console.log("🔑 Creating token with JWT_SECRET");
     const token = jwt.sign({ userId: user._id }, JWT_SECRET, {
       expiresIn: "1h",
     });
     console.log("✅ Token created successfully");
-
-    // ✅ (BEST PRACTICE) Send token in cookie
     res.cookie("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production", // true in production (HTTPS)
       sameSite: "strict",
       maxAge: 60 * 60 * 1000, // 1 hour
     });
-
-    // ✅ Send response
     res.status(200).json({
       message: "Login successful",
-      token, // optional (if using localStorage)
+      token,
       user: {
         id: user._id,
         email: user.email,
@@ -119,7 +106,9 @@ router.put("/profile", authMiddleware, async (req, res) => {
   }
 
   if (name && name.length < 2) {
-    return res.status(400).json({ message: "Name must be at least 2 characters" });
+    return res
+      .status(400)
+      .json({ message: "Name must be at least 2 characters" });
   }
 
   if (password && password.length < 6) {

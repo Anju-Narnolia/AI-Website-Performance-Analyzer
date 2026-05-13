@@ -9,6 +9,7 @@ import {
 import { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/useAuth";
+import { GoGraph } from "react-icons/go";
 
 interface WebsiteHistory {
   id: string;
@@ -45,6 +46,9 @@ export default function History() {
   const navigate = useNavigate();
   const { login } = useAuth();
 
+  const handleWebsite = (websiteUrl: string) => {
+    navigate(`/history/${encodeURIComponent(websiteUrl)}`)
+  }
   useEffect(() => {
     const fetchHistory = async () => {
       try {
@@ -70,10 +74,7 @@ export default function History() {
           throw new Error(`Failed to fetch: ${response.status}`);
         }
         const result = await response.json();
-        // console.log(result)
-
         console.log("This is the website data:", result.websites);
-        console.log("This is the scores:", result.websites.scores);
 
         setWebsites(result.websites || []);
       } catch (err) {
@@ -101,7 +102,6 @@ export default function History() {
       // Score filter
       if (site.scores) {
         const avgScore = (site.scores.performance + site.scores.accessibility + site.scores.seo + site.scores.bestPractices) / 4;
-        console.log(avgScore)
         if (filterScore === "excellent" && avgScore < 90) return false;
         if (filterScore === "good" && (avgScore < 70 || avgScore >= 90))
           return false;
@@ -258,10 +258,13 @@ export default function History() {
                         <div className="w-12 h-12 bg-cyan-500/10 rounded-lg flex items-center justify-center shrink-0">
                           <Globe className="w-6 h-6 text-cyan-400" />
                         </div>
-                        <div className="min-w-0 flex-1">
-                          <h3 className="text-lg font-semibold text-white truncate">
+                        <div className="min-w-0 flex flex-col ">
+                          <button onClick={() => {
+                            handleWebsite(website.name);
+                          }} className="text-lg font-semibold text-white truncate flex items-center gap-1 hover:text-cyan-400 transition-colors cursor-pointer">
                             {website.name}
-                          </h3>
+                            <GoGraph />
+                          </button>
                           <a
                             href={website.url}
                             target="_blank"
