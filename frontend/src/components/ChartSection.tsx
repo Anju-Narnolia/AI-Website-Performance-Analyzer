@@ -106,7 +106,7 @@ export const ChartSection = ({
                                         tick={{ fill: '#94a3b8', fontSize: 12 }}
                                         stroke="#475569"
                                     />
-                                    <Tooltip content={<CustomTooltip />} />
+                                    <Tooltip content={<CustomTooltip active={true} payload={[{ color: "red", name: "hii", value: 10 }]}  label=""/>} />
                                     <ReferenceLine y={90} stroke="#10b981" strokeDasharray="5 5" opacity={0.5} label={{ value: 'Excellent', fill: '#10b981', fontSize: 10, position: 'right' }} />
                                     <ReferenceLine y={70} stroke="#f59e0b" strokeDasharray="5 5" opacity={0.5} label={{ value: 'Good', fill: '#f59e0b', fontSize: 10, position: 'right' }} />
                                     <Area

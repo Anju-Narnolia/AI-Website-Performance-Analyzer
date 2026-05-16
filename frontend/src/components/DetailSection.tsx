@@ -7,7 +7,6 @@ import {
     Copy,
     Check,
     Lightbulb,
-    ArrowRight,
     Maximize2,
     Minimize2,
     Terminal
